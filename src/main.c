@@ -40,15 +40,38 @@ int main(void)
 {
 
   uint16_t AD_value;
+  uint32_t Delay_value=10000;
 
-  adc_init();
-  gpio_init();
+  adc_init(); //nastavenie AD prevodníka a vstupného analógového Pinu
+  gpio_init(); //nastavenie GPIOA príslušného Pinu pre LED
 
   while (1)
   {
 	  ADC_SoftwareStartConv(ADC1);
 	  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC)){}
 	  AD_value=ADC_GetConversionValue(ADC1);
+
+	  if((AD_value>1900) && (AD_value<2100)) //definovanie intervalu pre stlaèené vrchné tlaèidlo na klávesnici
+	  {
+			  Delay_value=50000;
+	  }
+	  else if((AD_value>2800) && (AD_value<3000))
+	  {
+			  Delay_value=50000*2;
+	  }
+	  else if((AD_value>3300) && (AD_value<3500))
+	  {
+			  Delay_value=50000*4;
+	  }
+	  else if((AD_value>3550) && (AD_value<3700)) //definovanie intervalu pre stlaèené spodné tlaèidlo
+	  {
+			  Delay_value=50000*8;
+	  }
+
+	  GPIO_SetBits(GPIOA,GPIO_Pin_5);
+	  delay(Delay_value);
+	  GPIO_ResetBits(GPIOA,GPIO_Pin_5);
+	  delay(Delay_value);
   }
   return 0;
 }
